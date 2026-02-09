@@ -1,9 +1,9 @@
 const CONFIG = {
   tag: "Happy Valentine’s Day",
-  title: "Chúc mừng Valentine",
-  sub: "Chạm/click để mở bất ngờ. Hoặc nhấn Space.",
+  title: "Chúc mừng Valentine 'Bà IU'",
+  sub: "Quá khứ để nhìn lại -  Hiện tại để vun đắp - Tương lai để cố gắng",
   burstMessage: "Chúc 'Bà IU' một Valentine thật ngọt ngào",
-  burstLine: "Hôm nay và cả những ngày sau nữa mong chúng ta sẽ luôn có yêu thương ở bên.",
+  burstLine: "Mong hiện tại và tương lai hai ta sẽ luôn luôn thành công và có yêu thương ở bên!",
   musicSrc: "assets/music.mp3",
 };
 
@@ -35,15 +35,16 @@ bgm.src = CONFIG.musicSrc;
 async function playMusicAuto() {
   try {
     await bgm.play();
-    musicBtn.textContent = "Tắt nhạc";
+    musicBtn.textContent = "Tắt nhạc"; // FIX: Btn -> musicBtn
     musicBtn.setAttribute("aria-pressed", "true");
     autoplayNote.hidden = true;
-  } catch {
+  } catch (err) {
     autoplayNote.hidden = false;
     musicBtn.textContent = "Bật nhạc";
     musicBtn.setAttribute("aria-pressed", "false");
   }
 }
+
 async function toggleMusic() {
   try {
     if (bgm.paused) {
@@ -56,11 +57,17 @@ async function toggleMusic() {
       musicBtn.textContent = "Bật nhạc";
       musicBtn.setAttribute("aria-pressed", "false");
     }
-  } catch {
+  } catch (err) {
     autoplayNote.hidden = false;
   }
 }
-musicBtn.addEventListener("click", toggleMusic);
+
+musicBtn?.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  toggleMusic();
+});
+
 playMusicAuto();
 
 let triedOnGesture = false;
@@ -71,7 +78,6 @@ function ensureMusicOnFirstGesture() {
 }
 addEventListener("pointerdown", ensureMusicOnFirstGesture, { once: true });
 addEventListener("keydown", ensureMusicOnFirstGesture, { once: true });
-
 // ===== Burst text
 function setBurstText(text) {
   burstText.innerHTML = "";
@@ -443,9 +449,6 @@ openBtn?.addEventListener("click", openExperience);
 replayBtn?.addEventListener("click", playCupidShoot);
 moreHeartsBtn?.addEventListener("click", () => burstHearts(18));
 
-// Open on first tap/click anywhere (optional)
-addEventListener("pointerdown", () => openExperience(), { passive: true });
-
 // Shortcuts
 addEventListener("keydown", (e) => {
   if (e.code === "Space") { e.preventDefault(); openExperience(); }
@@ -498,3 +501,24 @@ addEventListener("touchmove", (e) => {
   const t = e.touches && e.touches[0];
   if (t) trailMove(t.clientX, t.clientY);
 }, { passive: true });
+const closeBtn = $("#closeBtn");
+
+function closeExperience() {
+  opened = false;
+  reveal?.classList.remove("on");
+  reveal?.setAttribute("aria-hidden", "true");
+
+  // (tuỳ chọn) giảm mật độ tim khi đóng
+  densityTarget = 20;
+}
+
+closeBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  closeExperience();
+});
+
+// ESC để thoát
+addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeExperience();
+});
+
